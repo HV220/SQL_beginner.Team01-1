@@ -42,15 +42,13 @@ WITH main AS (SELECT b.user_id,
 )
 SELECT COALESCE(u.name, 'not defined') AS name,
        COALESCE(u.lastname, 'not defined') AS lastname,
-       cn.name AS currency_name,
-       (bwd.money * cur.rate_to_usd) AS currency_in_usd
+       c.name AS currency_name,
+       (bwd.money * c.rate_to_usd) AS currency_in_usd
 FROM balance_with_diff bwd 
     LEFT JOIN "user" u ON bwd.user_id = u.id
-    LEFT JOIN (SELECT DISTINCT id, name
-               FROM currency c) AS cn ON bwd.currency_id = cn.id
-    LEFT JOIN currency cur ON bwd.currency_id = cur.id 
-                          AND (bwd.diff = bwd.updated - cur.updated OR bwd.diff = cur.updated - bwd.updated)
-WHERE cn.name IS NOT NULL 
+    LEFT JOIN currency c ON bwd.currency_id = c.id 
+                          AND (bwd.diff = bwd.updated - c.updated OR bwd.diff = c.updated - bwd.updated)
+WHERE c.name IS NOT NULL 
 ORDER BY 1 DESC, 2, 3;
 
 
